@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS public.repositories (
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+TRUNCATE public.repositories;
+
 CREATE TABLE IF NOT EXISTS public.issues (
     id INT PRIMARY KEY,
     repository_id INT NOT NULL,
@@ -13,9 +15,7 @@ CREATE TABLE IF NOT EXISTS public.issues (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
-INSERT INTO repositories VALUES (12983, 'facebook', 'https://facebook.com');
-
-SELECT * FROM repositories;
+TRUNCATE public.issues;
 
 
+SELECT * FROM ISSUES;

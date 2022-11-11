@@ -10,14 +10,14 @@ import (
 func Sync(ctx context.Context, client github.GitHub, db *infrastructure.Database) {
 	log.Printf("Starting to sync %s/%s", client.Owner, client.Repo)
 
-	repo, err := client.GetRepository(ctx, "facebook", "react-native")
+	repo, err := client.GetRepository(ctx, client.Owner, client.Repo)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	db.InsertRepo(ctx, repo.ID, repo.Name, repo.URL)
 
-	issues, err := client.ListIssues(ctx, "facebook", "react-native")
+	issues, err := client.ListIssues(ctx, client.Owner, client.Repo)
 	if err != nil {
 		log.Fatal(err)
 	}
