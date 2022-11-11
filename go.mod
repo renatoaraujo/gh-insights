@@ -3,6 +3,7 @@ module renatoaraujo/gh-insights
 go 1.19
 
 require (
+	github.com/go-echarts/go-echarts/v2 v2.2.4
 	github.com/google/go-github/v48 v48.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.0.4

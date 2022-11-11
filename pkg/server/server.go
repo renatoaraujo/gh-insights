@@ -22,5 +22,6 @@ func NewServer(port string) Server {
 
 func (s Server) Serve() {
 	s.router.HandleFunc("/", homeLink)
+	s.router.HandleFunc("/charts", chartLink)
 	log.Fatal(http.ListenAndServe(s.port, s.router))
 }
