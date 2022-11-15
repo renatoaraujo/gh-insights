@@ -32,5 +32,9 @@ func buildRouter(ctx context.Context, db *infrastructure.Database) http.Handler 
 		charts.LeadTimeChartHandler(ctx, writer, db)
 	}).Methods("GET")
 
+	router.HandleFunc("/pulls-throughput", func(writer http.ResponseWriter, _ *http.Request) {
+		charts.PullsThroughputChartHandler(ctx, writer, db)
+	}).Methods("GET")
+
 	return router
 }

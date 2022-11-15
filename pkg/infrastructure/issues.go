@@ -22,45 +22,6 @@ func (db Database) InsertIssue(ctx context.Context, ID, repositoryID int64, titl
 	}
 }
 
-func (db Database) GetIssues(ctx context.Context) ([]Issue, error) {
-	query := `
-	SELECT 
-		id,
-		opened_at,
-		closed_at,
-		EXTRACT(EPOCH FROM (closed_at -opened_at ))/60 AS time_opened_minutes
-	FROM
-	    issues
-	WHERE
-		opened_at >= '2022-01-01'::date
-		AND closed_at >= '2022-01-01'::date
-	ORDER BY 
-	    created_at
-	`
-
-	rows, err := db.GetConnectionPool(ctx).Query(ctx, query)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	var issues []Issue
-	for rows.Next() {
-		var i Issue
-		err = rows.Scan(&i.ID, &i.OpenedAt, &i.ClosedAt, &i.TimeOpenedMinutes)
-		if err != nil {
-			return nil, fmt.Errorf("unable to scan. %w", err)
-		}
-		issues = append(issues, i)
-	}
-
-	if rows.Err() != nil {
-		return nil, fmt.Errorf("rows error. %w", rows.Err())
-	}
-
-	return issues, nil
-}
-
 func (db Database) GetIssuesClosedByMonthAndYear(ctx context.Context, month int, year int) ([]Issue, error) {
 	query := `
 	SELECT 

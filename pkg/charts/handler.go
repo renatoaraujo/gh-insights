@@ -2,6 +2,7 @@ package charts
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -47,6 +48,50 @@ func LeadTimeChartHandler(ctx context.Context, w http.ResponseWriter, db *infras
 	lc.SetXAxis(head)
 	series := Series{Values: avgPerMonth}
 	lc.AddSeries("Lead time per month", series)
+	lc.ExampleLineChart()
+	lc.Render(w)
+}
+
+func PullsThroughputChartHandler(ctx context.Context, w http.ResponseWriter, db *infrastructure.Database) {
+	lc := NewLineChart()
+	lc.SetTitle("Pull Requests Throughput", "Number of Pull Requests open and Pull Requests closed over time")
+	lc.SetTooltip("item", "mousemove")
+
+	t := time.Now()
+	var opened []int
+	var closed []int
+	var head []string
+
+	for i := 0; i < 18; i++ {
+		previousMonth := t.AddDate(0, -i, 0)
+		pulls, err := db.GetOpenedPullsByMonthAndYear(ctx, int(previousMonth.Month()), previousMonth.Year())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(len(pulls))
+
+		var c int
+		for _, v := range pulls {
+			if v.State == "closed" {
+				c++
+			}
+		}
+
+		closed = append(closed, c)
+		opened = append(opened, len(pulls))
+		head = append(head, previousMonth.Month().String())
+	}
+
+	reverse(head)
+	reverse(opened)
+	reverse(closed)
+
+	lc.SetXAxis(head)
+	seriesOpened := Series{Values: opened}
+	lc.AddSeries("Pull Requests opened", seriesOpened)
+	seriesClosed := Series{Values: closed}
+	lc.AddSeries("Pull Requests closed", seriesClosed)
 	lc.ExampleLineChart()
 	lc.Render(w)
 }

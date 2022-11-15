@@ -2,6 +2,7 @@ package charts
 
 import (
 	"net/http"
+	"reflect"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
@@ -13,7 +14,7 @@ type LineChart struct {
 }
 
 type Series struct {
-	Values []float64
+	Values interface{}
 }
 
 func NewLineChart() LineChart {
@@ -47,8 +48,14 @@ func (lc LineChart) SetXAxis(x []string) {
 
 func (lc LineChart) AddSeries(name string, series Series) {
 	items := make([]opts.LineData, 0)
-	for _, value := range series.Values {
-		items = append(items, opts.LineData{Value: value, Symbol: "circle"})
+
+	switch reflect.TypeOf(series.Values).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(series.Values)
+		for i := 0; i < s.Len(); i++ {
+			items = append(items, opts.LineData{Value: s.Index(i).Interface(), Symbol: "circle"})
+		}
+	default:
 	}
 
 	lc.line.AddSeries(name, items)
