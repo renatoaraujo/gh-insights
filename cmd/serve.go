@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"log"
+	"os"
+
 	"github.com/spf13/cobra"
 
+	"renatoaraujo/gh-insights/cmd/app"
+	"renatoaraujo/gh-insights/pkg/infrastructure"
 	"renatoaraujo/gh-insights/pkg/server"
 )
 
@@ -15,10 +20,15 @@ func init() {
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "Start a HTTP application",
-	Long:  `Start a HTTP application to visualise the generated charts`,
+	Short: "Start a HTTP app",
+	Long:  `Start a HTTP app to visualise the generated charts`,
 	Run: func(cmd *cobra.Command, args []string) {
-		server := server.NewServer(port)
-		server.Serve()
+		db, err := infrastructure.NewDatabase(cmd.Context(), os.Getenv("DATABASE_DSN"))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		app := app.NewApp(cmd.Context(), db)
+		server.Serve(port, app.Router)
 	},
 }

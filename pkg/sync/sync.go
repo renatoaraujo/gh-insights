@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"log"
+
 	"renatoaraujo/gh-insights/pkg/github"
 	"renatoaraujo/gh-insights/pkg/infrastructure"
 )
@@ -23,6 +24,6 @@ func Sync(ctx context.Context, client github.GitHub, db *infrastructure.Database
 	}
 
 	for _, issue := range issues {
-		db.InsertIssue(ctx, issue.ID, repo.ID, issue.CreatedAt, issue.ClosedAt)
+		db.InsertIssue(ctx, issue.ID, repo.ID, issue.Title, issue.Number, issue.CreatedAt, issue.ClosedAt)
 	}
 }

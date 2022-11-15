@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"log"
-	"renatoaraujo/gh-insights/pkg/infrastructure"
+	"os"
 	"strings"
 
 	"renatoaraujo/gh-insights/pkg/github"
+	"renatoaraujo/gh-insights/pkg/infrastructure"
 	"renatoaraujo/gh-insights/pkg/sync"
 
 	"github.com/spf13/cobra"
@@ -24,15 +25,14 @@ var syncCmd = &cobra.Command{
 	Long:  `Sync all the issues and pull requests from a given repository`,
 	Run: func(cmd *cobra.Command, args []string) {
 		split := strings.Split(repository, "/")
-		ghClient := github.NewPublic(split[0], split[1])
+		ghClient := github.NewAuthenticatedClient(split[0], split[1], os.Getenv("GITHUB_TOKEN"))
 
-		db, err := infrastructure.NewDatabase(cmd.Context(), "postgresql://postgres:example@localhost/postgres?sslmode=disable")
+		db, err := infrastructure.NewDatabase(cmd.Context(), os.Getenv("DATABASE_DSN"))
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		sync.Sync(cmd.Context(), ghClient, db)
-		db.GetIssues(cmd.Context())
 		db.Close()
 	},
 }

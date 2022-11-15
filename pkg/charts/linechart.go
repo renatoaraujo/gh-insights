@@ -1,7 +1,6 @@
 package charts
 
 import (
-	"math/rand"
 	"net/http"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -13,35 +12,54 @@ type LineChart struct {
 	line *charts.Line
 }
 
+type Series struct {
+	Values []float64
+}
+
 func NewLineChart() LineChart {
 	return LineChart{
 		line: charts.NewLine(),
 	}
 }
 
-// generate random data for line chart
-func generateLineItems() []opts.LineData {
+func (lc LineChart) SetTitle(title, sub string) {
+	lc.line.SetGlobalOptions(
+		charts.WithTitleOpts(opts.Title{
+			Title:    title,
+			Subtitle: sub,
+		}),
+	)
+}
+
+func (lc LineChart) SetTooltip(trigger, triggerOn string) {
+	lc.line.SetGlobalOptions(
+		charts.WithTooltipOpts(opts.Tooltip{
+			Show:      true,
+			Trigger:   trigger,
+			TriggerOn: triggerOn,
+		}),
+	)
+}
+
+func (lc LineChart) SetXAxis(x []string) {
+	lc.line.SetXAxis(x)
+}
+
+func (lc LineChart) AddSeries(name string, series Series) {
 	items := make([]opts.LineData, 0)
-	for i := 0; i < 7; i++ {
-		items = append(items, opts.LineData{Value: rand.Intn(300)})
+	for _, value := range series.Values {
+		items = append(items, opts.LineData{Value: value, Symbol: "circle"})
 	}
-	return items
+
+	lc.line.AddSeries(name, items)
 }
 
 func (lc LineChart) ExampleLineChart() {
-	// set some global options like Title/Legend/ToolTip or anything else
 	lc.line.SetGlobalOptions(
 		charts.WithInitializationOpts(opts.Initialization{Theme: types.ThemeWesteros}),
-		charts.WithTitleOpts(opts.Title{
-			Title:    "Line example in Westeros theme",
-			Subtitle: "Line chart rendered by the http server this time",
-		}))
+	)
 
-	// Put data into instance
-	lc.line.SetXAxis([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}).
-		AddSeries("Category A", generateLineItems()).
-		AddSeries("Category B", generateLineItems()).
-		SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: true}))
+	lc.line.SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: true, ConnectNulls: true}))
 }
 
 func (lc LineChart) Render(w http.ResponseWriter) {

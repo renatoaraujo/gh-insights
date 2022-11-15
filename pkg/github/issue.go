@@ -10,6 +10,8 @@ import (
 
 type Issue struct {
 	ID        int64
+	Title     string
+	Number    int
 	CreatedAt time.Time
 	ClosedAt  time.Time
 }
@@ -18,7 +20,7 @@ func (gh GitHub) ListIssues(ctx context.Context, owner, repo string) ([]*Issue, 
 	opts := &github.IssueListByRepoOptions{
 		State: "closed",
 		ListOptions: github.ListOptions{
-			PerPage: 100,
+			PerPage: 300,
 		},
 	}
 
@@ -31,8 +33,14 @@ func (gh GitHub) ListIssues(ctx context.Context, owner, repo string) ([]*Issue, 
 		}
 
 		for _, gissue := range gissues {
+			if gissue.GetPullRequestLinks() != nil {
+				continue
+			}
+
 			issue := &Issue{
 				ID:        gissue.GetID(),
+				Title:     gissue.GetTitle(),
+				Number:    gissue.GetNumber(),
 				CreatedAt: gissue.GetCreatedAt(),
 				ClosedAt:  gissue.GetClosedAt(),
 			}
