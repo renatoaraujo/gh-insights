@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS public.pulls
     repository_id INT       NOT NULL,
     title         VARCHAR,
     number        INT,
+    state         VARCHAR,
     opened_at     TIMESTAMP NOT NULL,
-    closed_at     TIMESTAMP NOT NULL,
+    closed_at     TIMESTAMP,
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
