@@ -68,3 +68,42 @@ func (db Database) GetOpenedPullsByMonthAndYear(ctx context.Context, month int, 
 
 	return pulls, nil
 }
+
+func (db Database) GetClosedPullsByMonthAndYear(ctx context.Context, month int, year int) ([]Pull, error) {
+	query := `
+	SELECT 
+		id,
+		state,
+		closed_at
+	FROM
+	    pulls
+	WHERE
+		EXTRACT(MONTH FROM closed_at) = $1
+		AND EXTRACT(YEAR FROM closed_at) = $2
+		AND state = 'closed'
+	ORDER BY 
+	    closed_at
+	`
+
+	rows, err := db.GetConnectionPool(ctx).Query(ctx, query, month, year)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var pulls []Pull
+	for rows.Next() {
+		var pr Pull
+		err = rows.Scan(&pr.ID, &pr.State, &pr.ClosedAt)
+		if err != nil {
+			return nil, fmt.Errorf("unable to scan. %w", err)
+		}
+		pulls = append(pulls, pr)
+	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("rows error. %w", rows.Err())
+	}
+
+	return pulls, nil
+}

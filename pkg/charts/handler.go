@@ -2,7 +2,6 @@ package charts
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -64,22 +63,18 @@ func PullsThroughputChartHandler(ctx context.Context, w http.ResponseWriter, db 
 
 	for i := 0; i < 18; i++ {
 		previousMonth := t.AddDate(0, -i, 0)
-		pulls, err := db.GetOpenedPullsByMonthAndYear(ctx, int(previousMonth.Month()), previousMonth.Year())
+		pullsOpened, err := db.GetOpenedPullsByMonthAndYear(ctx, int(previousMonth.Month()), previousMonth.Year())
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Println(len(pulls))
-
-		var c int
-		for _, v := range pulls {
-			if v.State == "closed" {
-				c++
-			}
+		pullsClosed, err := db.GetClosedPullsByMonthAndYear(ctx, int(previousMonth.Month()), previousMonth.Year())
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		closed = append(closed, c)
-		opened = append(opened, len(pulls))
+		closed = append(closed, len(pullsClosed))
+		opened = append(opened, len(pullsOpened))
 		head = append(head, previousMonth.Month().String())
 	}
 

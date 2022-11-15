@@ -24,7 +24,7 @@ func Sync(ctx context.Context, client github.GitHub, db *infrastructure.Database
 	}
 
 	for _, issue := range issues {
-		db.InsertIssue(ctx, issue.ID, repo.ID, issue.Title, issue.Number, issue.CreatedAt, issue.ClosedAt)
+		db.InsertIssue(ctx, issue.ID, repo.ID, issue.Title, issue.Number, issue.State, issue.CreatedAt, issue.ClosedAt)
 	}
 	log.Printf("Successfully saved %d issues for %s/%s", len(issues), client.Owner, client.Repo)
 

@@ -12,13 +12,14 @@ type Issue struct {
 	ID        int64
 	Title     string
 	Number    int
+	State     string
 	CreatedAt time.Time
 	ClosedAt  time.Time
 }
 
 func (gh GitHub) ListIssues(ctx context.Context, owner, repo string) ([]*Issue, error) {
 	opts := &github.IssueListByRepoOptions{
-		State: "closed",
+		State: "all",
 		ListOptions: github.ListOptions{
 			PerPage: 300,
 		},
@@ -41,6 +42,7 @@ func (gh GitHub) ListIssues(ctx context.Context, owner, repo string) ([]*Issue, 
 				ID:        gissue.GetID(),
 				Title:     gissue.GetTitle(),
 				Number:    gissue.GetNumber(),
+				State:     gissue.GetState(),
 				CreatedAt: gissue.GetCreatedAt(),
 				ClosedAt:  gissue.GetClosedAt(),
 			}
